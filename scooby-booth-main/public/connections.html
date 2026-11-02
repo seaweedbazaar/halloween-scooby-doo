@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booth Connections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1c1229; --panel: #261a36; --panel2: #2e2142; --line: #3b2c50; --text: #f3ecdc; --muted: #a596b8;
+    --lime: #b9d531; --orange: #ef7d2e; --teal: #7cc6b8; --red: #ff6b6b; --grey: #6d5f80;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 500 14px/1.45 'Fredoka', system-ui, sans-serif; min-height: 100vh; }
+  header { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 18px; color: var(--lime); }
+  header h1 span { color: var(--muted); font-weight: 500; }
+  header nav { margin-left: auto; display: flex; gap: 14px; }
+  header a { color: var(--teal); }
+  .summary { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 99px; background: var(--panel); font-size: 13px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 40px; display: grid; gap: 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; transition: border-color .3s; }
+  .card.bad { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
+  .card .top { display: flex; align-items: center; gap: 10px; }
+  .card h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 500; }
+  .card .headline { font-size: 16px; font-weight: 700; }
+  .card .detail { color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
+  .card .detail code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--grey); flex: none; position: relative; }
+  .dot.ok { background: var(--lime); box-shadow: 0 0 0 0 color-mix(in srgb, var(--lime) 60%, transparent); animation: pulse 2.4s infinite; }
+  .dot.warn { background: var(--orange); }
+  .dot.bad { background: var(--red); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--lime) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 7px transparent; } }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 12px; }
+  @media (max-width: 820px) { .two { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; display: flex; flex-direction: column; min-height: 0; }
+  .panel > h2 { margin: 0; padding: 12px 16px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .panel > h2 .right { margin-left: auto; text-transform: none; letter-spacing: 0; }
+  .panel .body { padding: 0 16px 14px; display: grid; gap: 10px; }
+
+  #log { height: 340px; overflow-y: auto; margin: 0 16px; padding: 8px 10px; background: var(--bg); border-radius: 10px; font: 12px/1.65 'JetBrains Mono', monospace; }
+  #log .l { display: grid; grid-template-columns: 62px 18px 1fr; gap: 6px; }
+  #log .t { color: var(--grey); }
+  #log .in .a { color: var(--lime); } #log .out .a { color: var(--orange); }
+  #log .info { color: var(--teal); } #log .debug { color: var(--grey); }
+  #log .empty { color: var(--muted); font-family: 'Fredoka', sans-serif; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .console-bar { padding: 10px 16px 14px; display: grid; gap: 10px; }
+  button { font: inherit; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+  button:hover { border-color: var(--muted); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.key { background: #6b5a3a; border-color: #6b5a3a; }
+  button.blue { background: #2a6fd6; border-color: #2a6fd6; }
+  button.red { background: #d63a2a; border-color: #d63a2a; }
+  button.lever { background: var(--lime); border-color: var(--lime); color: #1c1229; font-weight: 700; }
+  input { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font: 12px 'JetBrains Mono', monospace; flex: 1; min-width: 120px; }
+  label.check { color: var(--muted); font-size: 12px; display: flex; gap: 6px; align-items: center; }
+  label.check input { flex: none; min-width: 0; }
+  .sim { border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 8px; }
+  .sim small { color: var(--muted); }
+
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+  dt { color: var(--muted); font-size: 13px; } dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .note { color: var(--muted); font-size: 12px; }
+
+  .flow { display: flex; gap: 4px; flex-wrap: wrap; }
+  .flow span { font-size: 11px; padding: 3px 8px; border-radius: 99px; background: var(--bg); color: var(--grey); text-transform: uppercase; letter-spacing: .06em; }
+  .flow span.on { background: var(--lime); color: #1c1229; font-weight: 700; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Booth Admin <span>· Connections</span></h1>
+  <div class="summary"><span class="dot" id="summary-dot"></span><span id="summary">Checking…</span></div>
+  <nav><a href="/admin">Admin</a><a href="/led" target="_blank">Booth screen</a></nav>
+</header>
+
+<main>
+  <div class="grid" id="cards"></div>
+
+  <div class="two">
+    <div class="panel">
+      <h2><span class="dot" id="mega-dot"></span>Arduino Mega <span class="right mono" id="mega-port"></span></h2>
+      <div id="log"></div>
+      <div class="console-bar">
+        <div class="row">
+          <button data-cmd="PING">Ping</button>
+          <button data-cmd="RESET">Reset</button>
+          <button data-cmd="DONE">Done</button>
+          <button data-cmd="PROGRESS:50">Strip 50%</button>
+          <button id="reconnect">Reconnect</button>
+          <label class="check"><input type="checkbox" id="show-debug"> Show debug lines</label>
+        </div>
+        <form class="row" id="raw"><input id="raw-cmd" placeholder="Send a command, e.g. CAL:2048" autocomplete="off"><button>Send</button></form>
+        <div class="sim" id="sim" hidden>
+          <small>Pretend Mega (MEGA_PORT=sim): these act like the physical controls</small>
+          <div class="row">
+            <button class="key" data-cmd="!KEY">Turn key</button>
+            <button data-cmd="!POT 1">1</button><button data-cmd="!POT 2">2</button><button data-cmd="!POT 3">3</button><button data-cmd="!POT 4">4</button><button data-cmd="!POT 5">5</button>
+            <button class="blue" data-cmd="!BLUE">Blue</button>
+            <button class="red" data-cmd="!RED">Red</button>
+            <button class="lever" data-cmd="!KNIFE">Flip lever</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:12px;align-content:start">
+      <div class="panel">
+        <h2>Right now</h2>
+        <div class="body">
+          <div class="flow" id="flow"></div>
+          <dl id="now"></dl>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Timing <span class="right note">set by the booth screen</span></h2>
+        <div class="body">
+          <dl id="timing"></dl>
+          <div class="note">The booth screen's timing is the one that counts. The Mega follows it: the app resets the Mega whenever the screen goes back to the start. The Mega only times out on its own (after 2 minutes) if the app stops talking to it for 10 seconds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const ago = (at, now) => {
+  if (!at) return 'never';
+  const s = Math.max(0, Math.round((now - at) / 1000));
+  return s < 5 ? 'just now' : s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`;
+};
+const SCREENS = { attract: 'Start screen', countdown: 'Countdown', flash: 'Photo taken', pick: 'Picking', working: 'Drawing', done: 'Take your card', error: 'Error' };
+
+// Each card: [health 'ok' | 'warn' | 'bad' | 'off', title, headline, detail lines]
+function cards(d) {
+  const { booth, mega, led, printer, gemini, now } = d;
+  const open = booth?.fresh;
+  const list = [];
+
+  if (!open) list.push(['bad', 'Booth screen', 'Not open', [`Open <a href="/led" target="_blank" style="color:var(--teal)">/led</a> in the browser on this computer`]]);
+  else {
+    const mode = !booth.real ? 'Demo mode: no API, no printing' : booth.print ? 'Real runs, printing cards' : 'Real runs, but printing is off';
+    const health = booth.open > 1 ? 'warn' : booth.real && booth.print ? 'ok' : 'warn';
+    list.push([health, 'Booth screen', SCREENS[booth.state] || booth.state, [mode, booth.open > 1 ? `${booth.open} booth screens are open; close the extras` : '']]);
+  }
+
+  const megaHealth = { connected: 'ok', searching: 'bad', error: 'bad', off: 'off' }[mega.link];
+  list.push([megaHealth, 'Arduino Mega',
+    mega.link === 'connected' ? `Connected · ${mega.megaState || '…'}` : mega.link === 'off' ? 'Turned off' : mega.link === 'searching' ? 'Not found' : 'Problem',
+    mega.link === 'connected' ? [`${mega.port} · heard ${ago(mega.lastHeard, now)}`]
+      : mega.link === 'off' ? ['MEGA_PORT=off in .env'] : [mega.error || 'Looking for it…', mega.setting === 'auto' ? 'Searching every USB port' : `Port setting: ${mega.setting}`]]);
+
+  const frames = led.lastFrame && now - led.lastFrame < 3000;
+  list.push([led.displays.length ? (frames ? 'ok' : 'warn') : 'bad', 'LED panel',
+    led.displays.length ? `Pi connected` : 'Not connected',
+    led.displays.length ? [led.displays.join(', '), frames ? 'Receiving the screen' : 'No frames: is the booth screen open and streaming?']
+      : [`On the Pi: <code>sudo python3 ~/displayer.py --host ${esc(led.addresses[0] || '<this PC>')} --port ${led.port}</code>`, `This PC: ${led.addresses.join(', ')}`]]);
+
+  list.push([printer.installed ? 'ok' : 'bad', 'Card printer', printer.name,
+    [printer.installed ? 'Installed' : 'Not found in Windows printers', printer.last ? `Last: ${printer.last.message} (${ago(printer.last.at, now)})` : 'Nothing printed since start']]);
+
+  list.push([!open ? 'off' : booth.camera ? 'ok' : 'bad', 'Webcam', !open ? 'Unknown' : booth.camera ? 'Live' : 'No camera',
+    [!open ? 'Shown once the booth screen is open' : booth.camera || 'Allow the camera in the browser, or plug it in and reload the booth screen']]);
+
+  const job = gemini.lastJob;
+  list.push([!gemini.key ? 'bad' : job?.stage === 'error' ? 'warn' : 'ok', 'Gemini', gemini.key ? 'API key set' : 'No API key',
+    [`${gemini.imageModel} · ${gemini.textModel}`,
+      job ? `Last comic: ${esc(job.story)}, ${job.stage === 'error' ? `failed (${esc(job.error)})` : job.stage === 'done' ? 'done' : job.stage} · ${ago(job.endedAt || job.startedAt, now)}` : 'No comics since start']]);
+  return list;
+}
+
+let showDebug = false;
+async function refresh() {
+  let d;
+  try { d = await (await fetch('/api/connections')).json(); }
+  catch { $('summary').textContent = 'Server not running'; $('summary-dot').className = 'dot bad'; return; }
+
+  const list = cards(d);
+  $('cards').innerHTML = list.map(([h, title, headline, details]) => `
+    <div class="card ${h === 'bad' ? 'bad' : ''}">
+      <div class="top"><span class="dot ${h}"></span><h2>${title}</h2></div>
+      <div class="headline">${esc(headline)}</div>
+      ${details.filter(Boolean).map((x) => `<div class="detail">${x}</div>`).join('')}
+    </div>`).join('');
+  const problems = list.filter(([h]) => h === 'bad' || h === 'warn').length;
+  $('summary').textContent = problems ? `${problems} need${problems === 1 ? 's' : ''} attention` : 'Everything connected';
+  $('summary-dot').className = `dot ${list.some(([h]) => h === 'bad') ? 'bad' : problems ? 'warn' : 'ok'}`;
+
+  // Mega console
+  const { mega, booth, printer, now } = d;
+  $('mega-dot').className = `dot ${{ connected: 'ok', off: 'off' }[mega.link] || 'bad'}`;
+  $('mega-port').textContent = mega.link === 'connected' ? `${mega.port} · 115200` : '';
+  $('sim').hidden = mega.setting.toLowerCase() !== 'sim';
+  document.querySelectorAll('[data-cmd], #raw button').forEach((b) => (b.disabled = mega.link !== 'connected'));
+  const lines = mega.log.filter((l) => showDebug || l.dir !== 'debug');
+  const log = $('log'), atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 8;
+  log.innerHTML = lines.length ? lines.map((l) => `<div class="l ${l.dir}"><span class="t">${new Date(l.at).toLocaleTimeString([], { hour12: false })}</span><span class="a">${{ in: '←', out: '→', info: '•', debug: '#' }[l.dir]}</span><span>${esc(l.text)}</span></div>`).join('')
+    : '<div class="empty">Nothing yet. Messages to and from the Mega show up here.</div>';
+  if (atBottom) log.scrollTop = log.scrollHeight;
+
+  // Right now: where the guest is in the flow
+  const steps = [['attract', 'Start'], ['countdown', 'Photo'], ['pick', 'Pick'], ['working', 'Drawing'], ['done', 'Card']];
+  const at = booth?.fresh ? (booth.state === 'flash' ? 'countdown' : booth.state) : null;
+  $('flow').innerHTML = steps.map(([s, label]) => `<span class="${s === at ? 'on' : ''}">${label}</span>`).join('');
+  $('now').innerHTML = [
+    ['Booth screen', booth?.fresh ? SCREENS[booth.state] : 'Not open'],
+    ['Mega', mega.link === 'connected' ? mega.megaState || '…' : '—'],
+    ['Progress', booth?.fresh && booth.state === 'working' ? `${booth.progress}% · ${booth.stage}` : '—'],
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+
+  const t = booth?.timing;
+  $('timing').innerHTML = [
+    ['Picking screen gives up after', t ? `${t.idle}s idle` : '—'],
+    ['"Take your card" stays up', t ? `${t.done}s` : '—'],
+    ['Error screen stays up', t ? `${t.error}s` : '—'],
+    ['Card printing time (before DONE)', `${printer.doneDelay}s`],
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+}
+
+async function sendCmd(cmd) {
+  await fetch('/api/mega/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cmd }) });
+  refresh();
+}
+document.querySelectorAll('[data-cmd]').forEach((b) => (b.onclick = () => sendCmd(b.dataset.cmd)));
+$('raw').onsubmit = (e) => { e.preventDefault(); const cmd = $('raw-cmd').value.trim(); if (cmd) sendCmd(cmd); $('raw-cmd').value = ''; };
+$('reconnect').onclick = async () => { await fetch('/api/mega/reconnect', { method: 'POST' }); refresh(); };
+$('show-debug').onchange = (e) => { showDebug = e.target.checked; refresh(); };
+
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>

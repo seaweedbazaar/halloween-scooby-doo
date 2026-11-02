@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LED Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #111; --panel: #1c1c1c; --line: #333; --text: #eee; --muted: #999; --lime: #b9d531; --orange: #ef7d2e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { background: var(--bg); color: var(--text); font: 500 14px/1.4 'Fredoka', system-ui, sans-serif; display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: flex-start; padding: 24px 16px; }
+  .screen-wrap { background: #050505; padding: 18px; border-radius: 14px; box-shadow: 0 0 0 2px #222, 0 20px 60px rgba(0,0,0,.6); }
+  #display { display: block; width: min(768px, calc(100vw - 72px)); aspect-ratio: 1; image-rendering: pixelated; }
+  .controls { width: 320px; max-width: 100%; display: grid; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 10px; }
+  h1 { font-size: 16px; margin: 0; } h2 { font-size: 11px; margin: 0; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 700; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: #2a2a2a; color: var(--text); padding: 8px 12px; min-width: 42px; }
+  button:active { transform: translateY(1px); }
+  button.photo { background: #6b5a3a; border-color: #6b5a3a; }
+  button.a { background: #2a6fd6; border-color: #2a6fd6; }
+  button.b { background: #d63a2a; border-color: #d63a2a; }
+  button.go { background: var(--lime); border-color: var(--lime); color: #111; flex: 1; }
+  label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  a.keys { color: var(--lime); }
+  .keys { color: var(--muted); font-size: 12px; } .keys b { color: var(--text); font-weight: 600; }
+  #status { font-size: 12px; color: var(--muted); white-space: pre-wrap; }
+  #result-img { width: 100%; border-radius: 6px; display: none; }
+  video { display: none; }
+</style>
+</head>
+<body>
+  <div class="screen-wrap"><canvas id="display" width="768" height="768"></canvas></div>
+
+  <div class="controls">
+    <div class="card">
+      <h1>LED screen mock (192×192)</h1>
+      <h2>Hardware</h2>
+      <div class="row">
+        <button id="dial-left">◀</button>
+        <button data-dial="1">1</button><button data-dial="2">2</button><button data-dial="3">3</button><button data-dial="4">4</button><button data-dial="5">5</button>
+        <button id="dial-right">▶</button>
+      </div>
+      <div class="row">
+        <button class="photo" id="btn-photo">TURN KEY</button>
+        <button class="b" id="btn-b">RED</button>
+        <button class="a" id="btn-a">BLUE</button>
+        <button class="go" id="btn-go">FLIP LEVER</button>
+      </div>
+      <div class="keys">Keyboard: dial <b>1–5</b> or <b>← →</b> · red <b>B</b> · blue <b>A</b> · key <b>P</b>/<b>Space</b> · lever <b>Enter</b>/<b>G</b></div>
+    </div>
+
+    <div class="card">
+      <h2>Mode</h2>
+      <label><input type="checkbox" id="real"> Real run (uses the API, costs money)</label>
+      <label><input type="checkbox" id="print"> Print card when done (real runs only)</label>
+      <label><input type="checkbox" id="dots" checked> LED dot look</label>
+      <label><input type="checkbox" id="stream" checked> Stream to the LED panel</label>
+      <div id="led-status" class="keys"></div>
+      <div id="mega-status" class="keys"></div>
+      <a href="/connections" target="_blank" class="keys">Connections</a>
+      <div id="status"></div>
+      <img id="result-img" alt="Finished comic">
+    </div>
+  </div>
+
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="led" width="192" height="192" hidden></canvas>
+<script src="/led.js" type="module"></script>
+</body>
+</html>

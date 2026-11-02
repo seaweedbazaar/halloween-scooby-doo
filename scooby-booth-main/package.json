@@ -1,0 +1,9 @@
+{
+  "name": "scooby-booth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "monsters": "node --env-file=.env scripts/monsters.js"
+  }
+}

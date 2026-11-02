@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mystery Booth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Start -->
+  <section class="screen active" id="start">
+    <p class="kicker">Mystery Inc. is recruiting</p>
+    <h1>Join<br>the Gang!</h1>
+    <p class="sub">Pick a partner, pick a mystery, snap a photo, and star in your own spooky comic.</p>
+    <button class="big" data-go="pick">Start</button>
+  </section>
+
+  <!-- Pick a character -->
+  <section class="screen" id="pick">
+    <p class="kicker">Step 1 of 3</p>
+    <h2 id="pick-title"></h2>
+    <div class="characters" id="characters"></div>
+  </section>
+
+  <!-- Pick a scenario -->
+  <section class="screen" id="quiz">
+    <p class="kicker">Step 2 of 3</p>
+    <img class="quiz-portrait" id="quiz-portrait" alt="">
+    <h2 id="quiz-question"></h2>
+    <div class="answers two" id="quiz-answers"></div>
+    <button class="back" data-go="pick">Back</button>
+  </section>
+
+  <!-- Camera -->
+  <section class="screen" id="camera">
+    <p class="kicker">Step 3 of 3</p>
+    <h2>Strike a pose!</h2>
+    <div class="viewfinder">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="guide"></div>
+      <div class="countdown" id="countdown"></div>
+    </div>
+    <p class="hint">Put your face inside the oval</p>
+    <button class="big" id="snap">Take photo</button>
+  </section>
+
+  <!-- Generating -->
+  <section class="screen" id="working">
+    <div class="spinner"></div>
+    <h2 id="working-title">Inking your comic...</h2>
+    <p class="sub" id="working-sub">This takes about a minute.</p>
+  </section>
+
+  <!-- Result -->
+  <section class="screen" id="result">
+    <h2 id="result-title"></h2>
+    <img id="comic" alt="Your comic">
+    <!-- Take-home options (QR, print, gallery) go here -->
+    <button class="big" data-go="start">Done</button>
+  </section>
+
+  <!-- Error -->
+  <section class="screen" id="error">
+    <h2>Zoinks! Something went wrong.</h2>
+    <p class="sub" id="error-message"></p>
+    <button class="big" data-go="start">Try again</button>
+  </section>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

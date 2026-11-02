@@ -1,0 +1,10 @@
+{
+  "scene": "gang.jpg",
+  "characters": [
+    {"dial":1,"id":"velma","name":"Velma","a":{"label":"MUSEUM","story":"velma"},"b":{"label":"LIBRARY","story":"velma-library"},"focus":{"x":116,"y":106,"r":34}},
+    {"dial":2,"id":"fred","name":"Fred","a":{"label":"DISCO","story":"fred"},"b":{"label":"SHORTCUT","story":"fred-shortcut"},"focus":{"x":157,"y":62,"r":32}},
+    {"dial":3,"id":"daphne","name":"Daphne","a":{"label":"SALE","story":"daphne"},"b":{"label":"DOOR","story":"daphne-door"},"focus":{"x":68,"y":72,"r":34}},
+    {"dial":4,"id":"shaggy","name":"Shaggy","a":{"label":"S'MORES","story":"shaggy"},"b":{"label":"CANDY","story":"shaggy-snacks"},"focus":{"x":118,"y":26,"r":30}},
+    {"dial":5,"id":"scooby","name":"Scooby-Doo","a":{"label":"DINER","story":"scooby"},"b":{"label":"PARK","story":"scooby-ghost"},"focus":{"x":210,"y":96,"r":38}}
+  ]
+}
